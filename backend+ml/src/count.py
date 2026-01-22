@@ -15,7 +15,7 @@ multi_label = 0
 neutral_count = 0
 unmaped_count = 0
 
-for line in open("./data/train.tsv", "r", encoding="utf-8"):
+for line in open("../data/train.tsv", "r", encoding="utf-8"):
     total += 1
     parts = line.strip().split("\t")
     raw_id = parts[1]
