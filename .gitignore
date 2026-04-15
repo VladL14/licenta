@@ -1,0 +1,65 @@
+# ==========================================
+# 1. FRONTEND (Angular & Node)
+# ==========================================
+/dist
+/tmp
+/out-tsc
+/bazel-out
+/node_modules
+npm-debug.log
+yarn-error.log
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/
+
+# ==========================================
+# 2. BACKEND (Python & Machine Learning)
+# ==========================================
+# SECURITATE - CRITIC! Nu sterge asta niciodata!
+.env
+*.env
+
+# Medii virtuale (aici stau zecile de mii de fisiere inutile pt Git)
+.venv/
+venv/
+env/
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Modele ML salvate
+backend+ml/model_output/
+*.pt
+*.bin
+*.safetensors
+
+# ==========================================
+# 3. IDE-uri si Fisiere de Sistem
+# ==========================================
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+.history/*
+.DS_Store
+Thumbs.db
+
+node_modules/
+.angular/cache/
+**/.angular/

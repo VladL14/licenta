@@ -53,7 +53,7 @@ class DatasetML(Dataset):
         target = self.data[index][1]
 
 
-        encoding = self.tokenizer.encode_plus(
+        encoding = self.tokenizer(
             text,
             add_special_tokens=True,
             max_length=self.max_len,
