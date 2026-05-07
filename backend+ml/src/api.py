@@ -123,7 +123,7 @@ def analyze_text(request: ChatInput):
         llama_output = replicate.run("meta/meta-llama-3-8b-instruct",
                 input={
                     "system_prompt": system_prompt,
-                    "prompt": text,
+                    "prompt": current_prompt,
                     "temperature": 0.7,
                     "max_tokens": 100
                 }

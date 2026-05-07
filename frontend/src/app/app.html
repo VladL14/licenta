@@ -1,78 +1,101 @@
-<div class="main-container" style="font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+<canvas #networkCanvas class="bg-canvas"></canvas>
+<div class="app-container">
   
-  <h1 style="text-align: center; color: #333;">AI Chat</h1>
-
-  <div class="section" style="margin-bottom: 20px; text-align: center;" *ngIf="!imageCode">
-    <h3>Pasul 1: Încarcă un Avatar</h3>
-    <input type="file" (change)="imageToBase64($event)" accept="image/*">
+  <!-- Intro Screen -->
+  <div class="intro-screen glass-panel" *ngIf="!isAvatarUploaded">
+    <div class="intro-content fade-in">
+      <div class="intro-icon">✨</div>
+      <h1>Welcome to AI Avatar Chat</h1>
+      <p>Please select an image to serve as your digital avatar.</p>
+      
+      <div class="upload-area">
+        <input type="file" id="avatar-upload" (change)="imageToBase64($event)" accept="image/*" class="file-input">
+        <label for="avatar-upload" class="upload-btn">
+          <span class="btn-text">Choose Avatar</span>
+        </label>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="imageCode">
+  <!-- Main Screen -->
+  <div class="main-screen fade-in" *ngIf="isAvatarUploaded">
     
-    <div style="text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
-      <img [src]="currentAvatar" alt="Avatar" style="max-width: 200px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <!-- Top Bar -->
+    <header class="top-bar glass-panel">
+      <h2>AI Avatar Chat</h2>
+      <button class="reset-btn" (click)="resetAvatar()">Start Over</button>
+    </header>
+
+    <div class="content-wrapper">
       
-      <div *ngIf="emotionResult" style="margin-top: 10px;">
-        <button (click)="toggleExplanation()" style="background: #e0e0e0; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;">
-          {{ showExplanation ? 'Ascunde Detalii' : 'Explicație Emoție' }}
-        </button>
+      <!-- Left Side: Chat -->
+      <section class="chat-section glass-panel">
         
-        <div *ngIf="showExplanation" style="text-align: left; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 14px;">
-          <p><strong>Emoție detectată:</strong> {{ emotionResult.dominant_emotion | uppercase }}</p>
-          <p style="margin-bottom: 5px;"><strong>Distribuție:</strong></p>
-          <ul style="margin-top: 0;">
-            <li *ngFor="let item of emotionResult.emotions_array | keyvalue">
-              {{ item.key }}: {{ item.value }}%
-            </li>
-          </ul>
+        <div class="chat-window" #chatScroll>
+          <div class="empty-state" *ngIf="messages.length === 0">
+            <p>Say hello to your avatar! 👋</p>
+          </div>
+
+          <div class="message-wrapper" *ngFor="let msg of messages" [ngClass]="msg.role === 'user' ? 'message-user' : 'message-bot'">
+            <span class="message-sender">{{ msg.role === 'user' ? 'You' : 'Avatar' }}</span>
+            <div class="message-bubble fade-in-up">
+              {{ msg.content }}
+            </div>
+          </div>
+          
+          <div class="message-wrapper message-bot" *ngIf="isLoading">
+            <span class="message-sender">Avatar</span>
+            <div class="message-bubble typing-indicator">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="chat-window" style="height: 300px; overflow-y: auto; background: #fafafa; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px;">
-      
-      <p *ngIf="messages.length === 0" style="text-align: center; color: #888;">Please enter a message !</p>
-
-      <div *ngFor="let msg of messages" style="margin-bottom: 15px;">
-        <div [ngStyle]="{'text-align': msg.role === 'user' ? 'right' : 'left'}">
-          <span style="font-size: 11px; color: #777; display: block; margin-bottom: 3px;">
-            {{ msg.role === 'user' ? 'TU' : 'AVATAR' }}
-          </span>
-          <span [ngStyle]="{
-            'display': 'inline-block',
-            'padding': '10px 14px',
-            'border-radius': '15px',
-            'background-color': msg.role === 'user' ? '#007bff' : '#e9ecef',
-            'color': msg.role === 'user' ? 'white' : 'black',
-            'text-align': 'left'
-          }">
-            {{ msg.content }}
-          </span>
+        <div class="input-area">
+          <input 
+            type="text" 
+            [(ngModel)]="userText" 
+            (keyup.enter)="sendMessage()"
+            placeholder="Type your message..." 
+            class="chat-input"
+            [disabled]="isLoading">
+          
+          <button 
+            class="send-btn"
+            (click)="sendMessage()" 
+            [disabled]="isLoading || userText.trim() === ''">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
         </div>
-      </div>
-      
-      <div *ngIf="isLoading" style="text-align: left; margin-bottom: 15px;">
-        <span style="display: inline-block; padding: 10px 14px; border-radius: 15px; background-color: #e9ecef; color: #888; font-style: italic;">
-          Analizează și generează...
-        </span>
-      </div>
-    </div>
+      </section>
 
-    <div style="display: flex; gap: 10px;">
-      <input 
-        type="text" 
-        [(ngModel)]="userText" 
-        (keyup.enter)="sendMessage()"
-        placeholder="Scrie un mesaj..." 
-        style="flex: 1; padding: 12px; border-radius: 5px; border: 1px solid #ccc;">
-      
-      <button 
-        (click)="sendMessage()" 
-        [disabled]="isLoading || userText.trim() === ''"
-        style="padding: 12px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-        Trimite
-      </button>
-    </div>
+      <!-- Right Side: Avatar -->
+      <section class="avatar-section glass-panel">
+        <div class="avatar-display fade-in">
+          <img [src]="currentAvatar" alt="Avatar" class="avatar-img" [ngClass]="{'loading': isLoading}">
+        </div>
 
+        <div class="emotion-panel fade-in-up" *ngIf="emotionResult">
+          <button class="toggle-emotion-btn" (click)="toggleExplanation()">
+            {{ showExplanation ? 'Hide Emotion Details' : 'View Emotion Details' }}
+          </button>
+          
+          <div class="emotion-details glass-panel-inner" *ngIf="showExplanation">
+            <p class="dominant-emotion">Detected: <strong>{{ emotionResult.dominant_emotion | uppercase }}</strong></p>
+            <div class="emotion-distribution">
+              <div class="emotion-bar" *ngFor="let item of emotionResult.emotions_array | keyvalue">
+                <span class="emotion-label">{{ item.key }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="item.value"></div>
+                </div>
+                <span class="emotion-value">{{ item.value }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
   </div>
-</div>
+
+</div>
